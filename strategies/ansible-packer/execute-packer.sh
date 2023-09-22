@@ -9,8 +9,8 @@ if ! command -v python3 &>/dev/null; then
 fi
 
 #? Start our Python virtual environment
-[[ ! -d ".venv" ]] && python3 -m venv .venv
-source .venv/bin/activate
+# [[ ! -d ".venv" ]] && python3 -m venv .venv
+# source .venv/bin/activate
 
 #? Install Python requirements
 pip3 install --upgrade pip
@@ -37,11 +37,11 @@ PKRVARS
 #? Run our Packer build flow
 packer init .
 packer validate .
-sudo -E packer build .
+sudo packer build .
 
 #? Cleanup our Packer variable file
 rm variables.auto.pkrvars.hcl
 
 #? Deactivate our Python virtual environment and exit
-deactivate
+# deactivate
 exit
