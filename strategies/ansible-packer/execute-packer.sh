@@ -37,7 +37,7 @@ PKRVARS
 #? Run our Packer build flow
 packer init .
 packer validate .
-packer build .
+sudo -E packer build .
 
 #? Cleanup our Packer variable file
 rm variables.auto.pkrvars.hcl
