@@ -1,0 +1,12 @@
+Screen_PWM_setting=20
+Wiegand_repeat=1
+Watchdog_enable=1
+Auto_motion_enabled=1
+Watchdog_reset-limit-time=300
+Watchdog_NACK_send_time=30
+Watchdog_reset_block_time=3600
+Cpu_temp_limit=75
+hardware_check_timer=21600
+check_ethernet_connection=60
+status_check_timer=500
+screen_type=A

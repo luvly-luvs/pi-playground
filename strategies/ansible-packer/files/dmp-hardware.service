@@ -1,0 +1,11 @@
+[Unit]
+Description=DevicePeripherals
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/dmp-hardware
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

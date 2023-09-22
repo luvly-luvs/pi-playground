@@ -1,0 +1,59 @@
+# ! For more options and information see:
+# ! http://rpf.io/configtxt
+# !
+# ! ARM settings conflict with WM8960 driver, see:
+# ! https://www.waveshare.com/wiki/WM8960_Audio_HAT#accordion1
+# !
+# ! Other settings may impact device functionality. See links
+# ! above for details
+# !
+# ! Additional overlays and parameters are documented in:
+# ! /boot/overlays/README.md
+
+# dtdebug=on
+# start_debug=1
+
+dtoverlay=disable-bt
+dtoverlay=disable-wifi
+dtoverlay=i2s-gpio28-31
+dtoverlay=i2s-mmap
+dtoverlay=ramoops
+dtoverlay=spi-bcm2835
+dtoverlay=spi1-1cs
+
+# dtparam=audio=on
+dtparam=i2c=on,i2s=on,spi=on
+
+audio_pwm_mode=2
+disable_audio_dither=1
+enable_audio_dither=0
+gpio=43=op,dh
+gpio=44=op,dl
+gpio=45=op,dl
+
+camera_auto_detect=0
+
+dtoverlay=enc28j60,int_pin=22,speed=20000000
+gpio=23=op,dh
+
+disable_overscan=1
+disable_splash=1
+disable_touchscreen=1
+display_auto_detect=0
+gpio=26=op,dl
+hdmi_cvt=1024 600 60 6 0 0 0
+hdmi_drive=1
+hdmi_group=2
+hdmi_mode=87
+
+disable_auto_turbo=1
+force_turbo=1
+never_over_voltage=1
+
+[cm4]
+otg_mode=1
+[all]
+
+[pi4]
+arm_boost=0
+[all]dtparam=i2s=on

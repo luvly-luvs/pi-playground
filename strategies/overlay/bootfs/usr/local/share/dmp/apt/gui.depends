@@ -1,0 +1,7 @@
+apt-utils
+git
+openssl
+unclutter
+x11-xserver-utils
+xinit
+xserver-xorg

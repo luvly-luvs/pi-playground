@@ -1,0 +1,265 @@
+---
+- name: DMP Standalone Intercom Bootstrap Playbook
+  become: true
+  become_user: root
+  gather_facts: true
+  hosts: all
+
+  tasks:
+    - name: Configure Boot Parameters
+      ansible.builtin.copy:
+        backup: true
+        dest: /boot/config.txt
+        force: true
+        group: root
+        mode: "0755"
+        owner: root
+        src: config.txt
+      register: boot_config_copy_results
+      when: not ansible_check_mode
+
+    - name: Configure Timezone
+      community.general.timezone:
+        name: America/Phoenix
+      register: timezone_results
+
+    - name: Configure Locale
+      community.general.locale_gen:
+        name: en_US.UTF-8
+        state: present
+      register: locale_results
+
+    - name: Enable SSH
+      ansible.builtin.file:
+        mode: "0755"
+        path: /boot/ssh
+        state: touch
+
+    - name: Upgrade Aptitude Packages
+      ansible.builtin.apt:
+        autoremove: true
+        force_apt_get: true
+        only_upgrade: true
+        state: present
+        update_cache: true
+        upgrade: safe
+      register: apt_upgrade_results
+
+    - name: Audit Aptitude Packages for UI
+      ansible.builtin.apt:
+        autoclean: true
+        autoremove: true
+        force_apt_get: true
+        pkg:
+          - apt-utils
+          - git
+          - openssl
+          - xserver-xorg
+          - xinit
+          - x11-xserver-utils
+          - unclutter
+        state: present
+        update_cache: true
+      register: ui_apt_install_results
+
+    - name: Fix Broken Aptitude Packages
+      ansible.builtin.command: apt-get -f install
+      when: not ansible_check_mode
+
+    - name: Audit Aptitude Packages for Hardware
+      ansible.builtin.apt:
+        autoclean: true
+        autoremove: true
+        force_apt_get: true
+        pkg:
+          - curl
+          - kbd
+          - libportaudio2
+          - python-is-python3
+          - python-setuptools
+          - python-wheel-common
+          - python3
+          - python3-dev
+          - python3-pip
+          - python3-setuptools
+          - python3-usb
+          - python3-venv
+          - python3-virtualenv
+          - python3-wheel
+          - wget
+        state: present
+        update_cache: true
+      register: hw_apt_install_results
+
+    - name: Fix Broken Aptitude Packages
+      ansible.builtin.command: apt-get -f install
+      when: not ansible_check_mode
+
+    - name: Audit Aptitude Packages for Soundcard
+      ansible.builtin.apt:
+        autoclean: true
+        autoremove: true
+        force_apt_get: true
+        pkg:
+          - alsa-utils
+          - apt-utils
+          - git
+          - i2c-tools
+          - libasound2
+          - libasound2-plugins
+        state: present
+        update_cache: true
+      register: soundcard_apt_install_results
+
+    - name: Fix Broken Aptitude Packages
+      ansible.builtin.command: apt-get -f install
+      when: not ansible_check_mode
+
+    - name: Copy Latest UI App
+      ansible.builtin.copy:
+        dest: /root/levelup-ui.deb
+        mode: "0755"
+        owner: root
+        src: levelup-ui.deb
+      register: levelup_ui_copy_results
+
+    - name: Install Latest UI App
+      ansible.builtin.apt:
+        deb: /root/levelup-ui.deb
+        force_apt_get: true
+        state: present
+      register: levelup_ui_install_results
+      when: not ansible_check_mode
+
+    - name: Configure LevelUp Group
+      ansible.builtin.group:
+        name: levelup
+        state: present
+      register: levelup_group_results
+
+    - name: Configure LevelUp user
+      ansible.builtin.user:
+        comment: "LevelUp DMP User"
+        generate_ssh_key: true
+        name: dmp
+        password: "{{ 'raspberry' | password_hash }}"
+        state: present
+        expires: -1
+        group: levelup
+        groups:
+          [
+            levelup,
+            adm,
+            audio,
+            gpio,
+            i2c,
+            input,
+            netdev,
+            pi,
+            plugdev,
+            render,
+            spi,
+            sudo,
+            users,
+            video,
+          ]
+
+    - name: Allow LevelUp Group sudo Access without Password
+      community.general.sudoers:
+        commands: ALL
+        group: levelup
+        name: levelup-all
+        nopassword: true
+        setenv: true
+        state: present
+      register: levelup_sudoers_results
+
+    - name: Configure Profile
+      ansible.builtin.blockinfile:
+        block: |
+
+          if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
+            exec startx
+          fi
+        path: /home/dmp/.profile
+      register: profile_copy_results
+      when: not ansible_check_mode
+
+    - name: Install Soundcard Driver
+      ansible.builtin.shell: |
+        git clone https://github.com/waveshare/WM8960-Audio-HAT
+        pushd WM8960-Audio-HAT || exit
+        sudo ./install.sh
+        sudo cp -f asound.conf /etc/asound.conf
+        sudo cp -f wm8960_asound.state /var/lib/alsa/asound.state
+        popd || exit
+        exit 0
+      args:
+        executable: /bin/bash
+      register: soundcard_driver_install_results
+      when: not ansible_check_mode
+
+    - name: Install Hardware Code
+      ansible.builtin.copy:
+        dest: /home/dmp/hw/
+        mode: preserve
+        src: hw/
+      register: hardware_code_copy_results
+
+    - name: Install Hardware Service Handler
+      ansible.builtin.copy:
+        content: |
+          #!/usr/bin/env bash
+          cd /home/dmp/hw/
+          sudo ./start.sh
+        dest: /usr/local/bin/dmp-hardware
+        mode: "0755"
+        owner: root
+      register: hardware_service_handler_copy_results
+
+    - name: Install Hardware Service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/
+        mode: "0644"
+        src: dmp-hardware.service
+      register: hardware_service_copy_results
+
+    - name: Enable & Start Hardware Service
+      ansible.builtin.service:
+        enabled: true
+        name: dmp-hardware.service
+        state: started
+      register: hardware_service_results
+      when: not ansible_check_mode
+
+    - name: Configure X Server
+      ansible.builtin.copy:
+        dest: /home/dmp/.xserverrc
+        mode: "+x"
+        owner: dmp
+        src: .xserverrc
+      register: xserverrc_copy_results
+
+    - name: Configure Xinit
+      ansible.builtin.copy:
+        dest: /home/dmp/.xinitrc
+        mode: "+x"
+        owner: dmp
+        src: .xinitrc
+      register: xinitrc_copy_results
+
+    - name: Configure Getty
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/getty@tty1.service.d/autologin.conf
+        mode: "0644"
+        owner: root
+        src: autologin.conf
+      register: getty_copy_results
+
+    - name: Reboot Device
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by Ansible"
+        reboot_timeout: 300
+        test_command: /usr/bin/uptime
+      register: reboot_results
+      when: not ansible_check_mode and inventory_hostname != "localhost"

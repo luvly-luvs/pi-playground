@@ -1,0 +1,15 @@
+asyncio
+boto3
+# jsonrpcclient removes all of its
+# client 'extras' in v4.x
+jsonrpcclient[websockets]==3.3.6
+jsonrpclib==0.2.1
+jsonrpcserver
+keyboard
+python-dotenv
+rpi.gpio
+setuptools
+sounddevice
+spidev==3.5
+websockets==10.0
+wheel

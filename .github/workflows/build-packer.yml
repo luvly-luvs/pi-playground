@@ -1,0 +1,23 @@
+name: Build Image via Packer
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    name: Build & Deploy IoT Image
+    runs-on: buildjet-2vcpu-ubuntu-2204-arm
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Packer
+        uses: hashicorp-contrib/setup-packer@v2
+
+      - name: Run Packer
+        run: |
+          cd strategies/ansible-packer
+          chmod +x *.sh
+          ./execute-packer.sh
