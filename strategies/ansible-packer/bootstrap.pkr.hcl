@@ -12,6 +12,14 @@ packer {
   }
 }
 
+variable "source_iso_url" {
+  type = string
+}
+
+variable "source_iso_sha256" {
+  type = string
+}
+
 source "arm-image" "pi" {
   chroot_mounts = [
     ["proc", "proc", "/proc"],
