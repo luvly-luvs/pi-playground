@@ -29,7 +29,7 @@ source "arm-image" "pi" {
     ["binfmt_misc", "binfmt_misc", "/proc/sys/fs/binfmt_misc"],
   ]
   image_type           = "raspberrypi"
-  iso_checksum         = "sha256:${var.source_iso_sha256}"
+  iso_checksum         = "${var.source_iso_sha256}"
   iso_target_extension = "img"
   iso_url              = "${var.source_iso_url}"
   output_filename      = "dmp-pi.img"
