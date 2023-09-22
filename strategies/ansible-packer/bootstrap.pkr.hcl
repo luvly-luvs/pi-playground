@@ -47,6 +47,7 @@ build {
       "sudo apt-get autoremove -y",
       "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y",
       "sudo apt-get install -y -f",
+      "source \"$HOME/.cargo/env\"",
       "pip3 install --upgrade pip",
       "pip3 install --upgrade setuptools wheel",
       "pip3 install ansible passlib"
@@ -58,14 +59,14 @@ build {
       "ANSIBLE_FORCE_COLOR=1",
       "PYTHONUNBUFFERED=1",
     ]
-    extra_arguments  = [
-      # The following arguments are required for running Ansible within a chroot
-      # See https://www.packer.io/plugins/provisioners/ansible/ansible#chroot-communicator for details
+    extra_arguments = [
+      # The following arguments are required for running Ansible within a chroot.
+      # See: https://www.packer.io/plugins/provisioners/ansible/ansible#chroot-communicator
       "--connection=chroot",
       "--become-user=root",
       "-e ansible_host=${build.MountPath}"
     ]
-    playbook_file    = "./bootstrap.playbook.yml"
+    playbook_file = "./bootstrap.playbook.yml"
   }
 }
 
