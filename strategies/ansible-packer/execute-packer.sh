@@ -35,8 +35,8 @@ source_iso_url      = "https://downloads.raspberrypi.org/raspios_lite_armhf/imag
 PKRVARS
 
 #? Run our Packer build flow
-packer init .
-packer validate .
+sudo packer init .
+sudo packer validate .
 sudo packer build .
 
 #? Cleanup our Packer variable file
