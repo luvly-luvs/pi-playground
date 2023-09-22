@@ -48,6 +48,12 @@ build {
       "sudo apt-get autoremove -y",
       "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y",
       "sudo apt-get install -y -f",
+      "ls -alhioFR /root/.cargo"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
       "ls -alhioFR /root/.cargo",
       "source \"/root/.cargo/env\"",
       "pip3 install --upgrade pip",
