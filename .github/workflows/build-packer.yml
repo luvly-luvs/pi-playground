@@ -1,6 +1,6 @@
 name: Build Image via Packer
 
-on: workflow_dispatch
+on: push
 
 jobs:
   build:
