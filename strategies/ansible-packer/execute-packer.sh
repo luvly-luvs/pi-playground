@@ -13,9 +13,9 @@ fi
 # source .venv/bin/activate
 
 #? Install Python requirements
-pip3 install --upgrade pip
-pip3 install --upgrade setuptools wheel
-pip3 install "ansible >= 2.3" passlib
+sudo pip3 install --upgrade pip
+sudo pip3 install --upgrade setuptools wheel
+sudo pip3 install "ansible >= 2.3" passlib
 
 #? Install ARM dependencies
 sudo apt-get update
