@@ -55,7 +55,7 @@ build {
   provisioner "shell" {
     inline = [
       "ls -alhioFR /root/.cargo",
-      "source \"/root/.cargo/env\"",
+      ". \"/root/.cargo/env\"",
       "pip3 install --upgrade pip",
       "pip3 install --upgrade setuptools wheel",
       "pip3 install ansible passlib"
