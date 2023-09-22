@@ -46,6 +46,10 @@ build {
       "pip3 install --upgrade pip",
       "pip3 install --upgrade setuptools wheel",
       "pip3 install ansible passlib",
+      "sudo apt-get remove -y rustc cargo",
+      "sudo apt-get autoremove -y",
+      "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y",
+      "sudo apt-get install -y -f"
     ]
   }
 
